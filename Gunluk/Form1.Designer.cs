@@ -28,34 +28,36 @@
         /// </summary>
         private void InitializeComponent()
         {
-            listGunluk = new ListBox();
+            listBoxGunluk = new ListBox();
             txtIcerik = new RichTextBox();
             txtBaslik = new TextBox();
             btnKaydet = new Button();
+            btnDuzenle = new Button();
             btnReset = new Button();
             SuspendLayout();
             // 
-            // listGunluk
+            // listBoxGunluk
             // 
-            listGunluk.FormattingEnabled = true;
-            listGunluk.ItemHeight = 15;
-            listGunluk.Location = new Point(12, 12);
-            listGunluk.Name = "listGunluk";
-            listGunluk.Size = new Size(167, 424);
-            listGunluk.TabIndex = 0;
-            listGunluk.MouseDoubleClick += listGunluk_MouseDoubleClick;
+            listBoxGunluk.FormattingEnabled = true;
+            listBoxGunluk.ItemHeight = 15;
+            listBoxGunluk.Location = new Point(12, 12);
+            listBoxGunluk.Name = "listBoxGunluk";
+            listBoxGunluk.Size = new Size(163, 424);
+            listBoxGunluk.TabIndex = 0;
+            listBoxGunluk.TabStop = false;
+            listBoxGunluk.MouseDoubleClick += listGunluk_MouseDoubleClick;
             // 
             // txtIcerik
             // 
-            txtIcerik.Location = new Point(197, 12);
+            txtIcerik.Location = new Point(181, 12);
             txtIcerik.Name = "txtIcerik";
-            txtIcerik.Size = new Size(591, 371);
+            txtIcerik.Size = new Size(607, 371);
             txtIcerik.TabIndex = 1;
             txtIcerik.Text = "";
             // 
             // txtBaslik
             // 
-            txtBaslik.Location = new Point(270, 389);
+            txtBaslik.Location = new Point(406, 389);
             txtBaslik.Name = "txtBaslik";
             txtBaslik.PlaceholderText = "Başlığı Girin";
             txtBaslik.Size = new Size(110, 23);
@@ -63,7 +65,7 @@
             // 
             // btnKaydet
             // 
-            btnKaydet.Location = new Point(270, 413);
+            btnKaydet.Location = new Point(406, 413);
             btnKaydet.Name = "btnKaydet";
             btnKaydet.Size = new Size(110, 23);
             btnKaydet.TabIndex = 3;
@@ -71,13 +73,23 @@
             btnKaydet.UseVisualStyleBackColor = true;
             btnKaydet.Click += btnKaydet_Click;
             // 
+            // btnDuzenle
+            // 
+            btnDuzenle.Location = new Point(522, 389);
+            btnDuzenle.Name = "btnDuzenle";
+            btnDuzenle.Size = new Size(67, 47);
+            btnDuzenle.TabIndex = 5;
+            btnDuzenle.Text = "Düzenle";
+            btnDuzenle.UseVisualStyleBackColor = true;
+            btnDuzenle.Click += btnDuzenle_Click;
+            // 
             // btnReset
             // 
-            btnReset.Location = new Point(197, 389);
+            btnReset.Location = new Point(333, 389);
             btnReset.Name = "btnReset";
             btnReset.Size = new Size(67, 47);
-            btnReset.TabIndex = 4;
-            btnReset.Text = "Reset";
+            btnReset.TabIndex = 6;
+            btnReset.Text = "Resetle";
             btnReset.UseVisualStyleBackColor = true;
             btnReset.Click += btnReset_Click;
             // 
@@ -87,12 +99,14 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
             Controls.Add(btnReset);
+            Controls.Add(btnDuzenle);
             Controls.Add(btnKaydet);
             Controls.Add(txtBaslik);
             Controls.Add(txtIcerik);
-            Controls.Add(listGunluk);
+            Controls.Add(listBoxGunluk);
             Name = "Form1";
             Text = "Form1";
+            FormClosing += Form1_FormClosing;
             Load += Form1_Load;
             ResumeLayout(false);
             PerformLayout();
@@ -100,10 +114,11 @@
 
         #endregion
 
-        private ListBox listGunluk;
+        private ListBox listBoxGunluk;
         private RichTextBox txtIcerik;
         private TextBox txtBaslik;
         private Button btnKaydet;
+        private Button btnDuzenle;
         private Button btnReset;
     }
 }
