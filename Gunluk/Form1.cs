@@ -7,9 +7,10 @@ namespace Gunluk
     public partial class Form1 : Form
     {
         private string path = "Gunluk.json", tempBaslik, tempIcerik;
-        List<Gunluk> gunlukList; 
+        List<Gunluk> gunlukList;
         public Form1()
         {
+
             InitializeComponent();
         }
         private void btnKaydet_Click(object sender, EventArgs e)
@@ -52,6 +53,7 @@ namespace Gunluk
         }
         private void Form1_Load(object sender, EventArgs e)
         {
+            btnDuzenle.Enabled = false;
             gunlukList = new List<Gunluk>();
             if (File.Exists(path))
             {
@@ -84,9 +86,8 @@ namespace Gunluk
                 return;
             }
 
+            btnDuzenle.Enabled = true;
             ResetTxtBtn();
-
-
 
             this.Text = gunlukList[listIndex].dateTime.ToString();
 
@@ -103,6 +104,7 @@ namespace Gunluk
         private void btnReset_Click(object sender, EventArgs e)
         {
             ResetTxtBtn();
+            btnDuzenle.Enabled = false;
         }
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -136,8 +138,8 @@ namespace Gunluk
             listBoxGunluk.Items.Clear();
             ResetTxtBtn();
             ListBoxMaker();
+            btnDuzenle.Enabled = false;
         }
-
     }
 
     public class Gunluk

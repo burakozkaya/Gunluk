@@ -89,7 +89,7 @@
             btnReset.Name = "btnReset";
             btnReset.Size = new Size(67, 47);
             btnReset.TabIndex = 6;
-            btnReset.Text = "Resetle";
+            btnReset.Text = "Reset";
             btnReset.UseVisualStyleBackColor = true;
             btnReset.Click += btnReset_Click;
             // 
