@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 
@@ -6,7 +7,7 @@ namespace Gunluk
     public partial class Form1 : Form
     {
         private string path = "Gunluk.json", tempBaslik, tempIcerik;
-        List<Gunluk> gunlukList;
+        List<Gunluk> gunlukList; 
         public Form1()
         {
             InitializeComponent();
@@ -44,7 +45,8 @@ namespace Gunluk
 
             gunlukList = gunlukList.OrderByDescending(item => item.dateTime).ToList();
 
-            listBoxGunluk.Items.Add(gunlukList[gunlukList.Count - 1].Baslik);
+            listBoxGunluk.Items.Clear();
+            ListBoxMaker();
 
             ResetTxtBtn();
         }
@@ -53,6 +55,11 @@ namespace Gunluk
             gunlukList = new List<Gunluk>();
             if (File.Exists(path))
             {
+                if (File.ReadAllText(path).Length == 0)
+                {
+                    File.Delete(path);
+                    return;
+                }
                 gunlukList = JsonSerializer.Deserialize<List<Gunluk>>(File.ReadAllText(path));
 
                 gunlukList = gunlukList.OrderByDescending(item => item.dateTime).ToList();
