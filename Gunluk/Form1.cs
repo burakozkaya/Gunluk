@@ -6,7 +6,7 @@ namespace Gunluk
 {
     public partial class Form1 : Form
     {
-        private string path = "Gunluk.json", tempBaslik, tempIcerik,readAllTemp;
+        private string path = "Gunluk.json", tempBaslik, tempIcerik, readAllTemp, passPath = ".Path.txt";
         List<Gunluk> gunlukList;
         public Form1()
         {
@@ -15,29 +15,13 @@ namespace Gunluk
         }
         private void btnKaydet_Click(object sender, EventArgs e)
         {
-            tempBaslik = txtBaslik.Text;
+            tempBaslik = txtBaslik.Text == string.Empty ?
+                tempBaslik = DateTime.Now.ToLongDateString() : txtBaslik.Text;
 
             tempIcerik = txtIcerik.Text;
 
-            if (tempIcerik == string.Empty)
-            {
-                MessageBox.Show("Icerik bos birakilamaz");
-                return;
-            }
+            if (GetValue()) return;
 
-            if (tempBaslik == string.Empty)
-                tempBaslik = DateTime.Now.ToLongDateString();
-
-            if (gunlukList.Any(item => item.Baslik == tempBaslik))
-            {
-                MessageBox.Show("Baslik ayni olamaz");
-                return;
-            }
-            foreach (var VARIABLE in gunlukList)
-            {
-                if (VARIABLE.Baslik == tempBaslik)
-                    return;
-            }
             gunlukList.Add(new Gunluk()
             {
                 Baslik = tempBaslik,
@@ -46,46 +30,25 @@ namespace Gunluk
 
             gunlukList = gunlukList.OrderByDescending(item => item.dateTime).ToList();
 
-            listBoxGunluk.Items.Clear();
-            ListBoxMaker();
+            listBoxUpdate();
 
-            ResetTxtBtn();
+            ResetTxtBtn("ignore");
         }
         private void Form1_Load(object sender, EventArgs e)
         {
             btnDuzenle.Enabled = false;
             gunlukList = new List<Gunluk>();
             if (File.Exists(path))
-            {
-                readAllTemp = File.ReadAllText(path);
-                if (readAllTemp.Length == 0)
-                    return;
-                gunlukList = JsonSerializer.Deserialize<List<Gunluk>>(readAllTemp);
-
-                gunlukList = gunlukList.OrderByDescending(item => item.dateTime).ToList();
-
-                ListBoxMaker();
-
-            }
-        }
-        private void ListBoxMaker()
-        {
-            foreach (var gunluk in gunlukList)
-            {
-                listBoxGunluk.Items.Add(gunluk.Baslik);
-            }
+                ReadJsonFromTxt();
         }
         private void listGunluk_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             var listIndex = listBoxGunluk.SelectedIndex;
 
             if (listIndex == -1)
-            {
                 return;
-            }
 
-            btnDuzenle.Enabled = true;
-            ResetTxtBtn();
+            ResetTxtBtn("allwaystrue");
 
             this.Text = gunlukList[listIndex].dateTime.ToString();
 
@@ -94,27 +57,13 @@ namespace Gunluk
             txtBaslik.Text = gunlukList[listIndex].Baslik;
 
         }
-        private void ResetTxtBtn()
-        {
-            txtIcerik.Clear();
-            txtBaslik.Clear();
-        }
         private void btnReset_Click(object sender, EventArgs e)
         {
-            ResetTxtBtn();
-            btnDuzenle.Enabled = false;
+            ResetTxtBtn("true");
         }
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            JsonSerializerOptions options = new JsonSerializerOptions()
-
-            {
-                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-            };
-
-            var temp = JsonSerializer.Serialize(gunlukList, options);
-
-            File.WriteAllText(path, temp);
+            WriteGunlukToJson();
         }
         private void btnDuzenle_Click(object sender, EventArgs e)
         {
@@ -126,24 +75,103 @@ namespace Gunluk
                 {
                     if (txtIcerik != null)
                     {
-                        var tempBaslikx = txtBaslik.Text != string.Empty ? txtBaslik.Text : DateTime.Now.ToString();
-                        gunlukList[tempSelectedIndex].Baslik = tempBaslikx;
-                        gunlukList[tempSelectedIndex].Icerik = txtIcerik.Text;
-                        gunlukList[tempSelectedIndex].dateTime = DateTime.Now;
+                        UpdateItem(tempSelectedIndex);
+                        ResetTxtBtn("true");
                     }
                 }
             }
-            listBoxGunluk.Items.Clear();
-            ResetTxtBtn();
-            ListBoxMaker();
-            btnDuzenle.Enabled = false;
         }
-    }
+        private void ReadJsonFromTxt()
+        {
+            readAllTemp = File.ReadAllText(path);
+            var readPassKey = File.ReadAllText(passPath).Split(":");
+            var readPassKeyFinal = int.Parse(readPassKey[0]) - int.Parse(readPassKey[1]);
+            if (readAllTemp.Length == 0)
+                return;
+            var charArray = readAllTemp.ToCharArray();
+            for (var i = 0; i < charArray.Length; i++)
+            {
+                charArray[i] = (char)((int)charArray[i] + readPassKeyFinal);
+            }
 
-    public class Gunluk
-    {
-        public string Baslik { get; set; }
-        public DateTime dateTime { get; set; } = DateTime.Now;
-        public string Icerik { get; set; }
+            readAllTemp = new string(charArray);
+
+            gunlukList = JsonSerializer.Deserialize<List<Gunluk>>(readAllTemp);
+
+
+            ListBoxMaker(gunlukList.OrderByDescending(item => item.dateTime).ToList());
+        }
+        private void WriteGunlukToJson()
+        {
+            Random rnd = new Random();
+            var tempPassKey = rnd.Next(0, 20);
+            var tempPassKeyRnd = rnd.Next(0, 20);
+            JsonSerializerOptions options = new JsonSerializerOptions()
+
+            {
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            };
+
+            var temp = JsonSerializer.Serialize(gunlukList, options);
+
+            var charArray = temp.ToCharArray();
+            for (var i = 0; i < charArray.Length; i++)
+            {
+                charArray[i] = (char)((int)charArray[i] - tempPassKey);
+            }
+
+            tempPassKey += tempPassKeyRnd;
+            File.WriteAllText(passPath, tempPassKey.ToString() + ":" + tempPassKeyRnd.ToString());
+            temp = new string(charArray);
+            File.WriteAllText(path, temp);
+        }
+        private void listBoxUpdate()
+        {
+            listBoxGunluk.Items.Clear();
+            ListBoxMaker(gunlukList);
+        }
+        private bool GetValue()
+        {
+            if (tempIcerik == string.Empty)
+            {
+                MessageBox.Show("Icerik bos birakilamaz");
+                return true;
+            }
+            if (gunlukList.Any(item => item.Baslik == tempBaslik))
+            {
+                MessageBox.Show("Baslik ayni olamaz");
+                return true;
+            }
+            return false;
+        }
+        private void UpdateItem(int tempSelectedIndex)
+        {
+            var tempBaslikx = txtBaslik.Text != string.Empty ? txtBaslik.Text : DateTime.Now.ToString();
+            gunlukList[tempSelectedIndex].Baslik = tempBaslikx;
+            gunlukList[tempSelectedIndex].Icerik = txtIcerik.Text;
+            gunlukList[tempSelectedIndex].dateTime = DateTime.Now;
+            listBoxUpdate();
+        }
+        private void ListBoxMaker(List<Gunluk> gunlukList)
+        {
+            foreach (var gunluk in gunlukList)
+                listBoxGunluk.Items.Add(gunluk.Baslik);
+        }
+        private void ResetTxtBtn(string flag)
+        {
+            txtIcerik.Clear();
+            txtBaslik.Clear();
+            this.Text = "Form1";
+            if (flag == "ignore")
+                return;
+            else if (flag == "true")
+            {
+                btnDuzenle.Enabled = false;
+                listBoxGunluk.SelectedIndex = -1;
+                return;
+            }
+            else
+                btnDuzenle.Enabled = true;
+        }
     }
 }
