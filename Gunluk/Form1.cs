@@ -6,7 +6,7 @@ namespace Gunluk
 {
     public partial class Form1 : Form
     {
-        private string path = "Gunluk.json", tempBaslik, tempIcerik;
+        private string path = "Gunluk.json", tempBaslik, tempIcerik,readAllTemp;
         List<Gunluk> gunlukList;
         public Form1()
         {
@@ -57,12 +57,10 @@ namespace Gunluk
             gunlukList = new List<Gunluk>();
             if (File.Exists(path))
             {
-                if (File.ReadAllText(path).Length == 0)
-                {
-                    File.Delete(path);
+                readAllTemp = File.ReadAllText(path);
+                if (readAllTemp.Length == 0)
                     return;
-                }
-                gunlukList = JsonSerializer.Deserialize<List<Gunluk>>(File.ReadAllText(path));
+                gunlukList = JsonSerializer.Deserialize<List<Gunluk>>(readAllTemp);
 
                 gunlukList = gunlukList.OrderByDescending(item => item.dateTime).ToList();
 
